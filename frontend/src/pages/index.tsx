@@ -14,18 +14,14 @@ const DEX_ADDRESS = '0x2387b22E1A6b576126ee941bb12e3f4F0Cad0900'
 // ABIs
 const FAUCET_ABI = [{ "inputs": [], "name": "requestTokens", "outputs": [], "stateMutability": "nonpayable", "type": "function" }] as const
 const VENDOR_ABI = [{ "inputs": [], "name": "buyTokens", "outputs": [], "stateMutability": "payable", "type": "function" }] as const
-const TOKEN_ABI = [
-  { "inputs": [{ "name": "spender", "type": "address" }, { "name": "value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }
-] as const
+const TOKEN_ABI = [{ "inputs": [{ "name": "spender", "type": "address" }, { "name": "value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }] as const
 const STAKING_ABI = [
   { "inputs": [{ "name": "amount", "type": "uint256" }], "name": "stake", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "name": "account", "type": "address" }], "name": "stakes", "outputs": [{ "name": "amount", "type": "uint256" }, { "name": "startTime", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "name": "account", "type": "address" }], "name": "calculateReward", "outputs": [{ "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
 ] as const
-const DEX_ABI = [
-  { "inputs": [], "name": "ethToToken", "outputs": [{ "name": "", "type": "uint256" }], "stateMutability": "payable", "type": "function" }
-] as const
+const DEX_ABI = [{ "inputs": [], "name": "ethToToken", "outputs": [{ "name": "", "type": "uint256" }], "stateMutability": "payable", "type": "function" }] as const
 
 function Page() {
   const { isConnected, address } = useAccount()
@@ -61,163 +57,139 @@ function Page() {
   const currentReward = rewardData ? formatEther(rewardData as bigint) : '0'
 
   return (
-    <div className="min-h-screen bg-[#ffffff] flex flex-col items-center">
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-40">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-gray-100 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gray-50 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.03]" 
-             style={{backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>
+    <div className="min-h-screen bg-[#ffffff] flex flex-col items-center font-sans selection:bg-black selection:text-white pb-32">
+      {/* Background Sutil */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full" 
+             style={{backgroundImage: 'radial-gradient(#000 0.5px, transparent 0.5px)', backgroundSize: '30px 40px'}}></div>
       </div>
 
-      <nav className="w-full max-w-6xl flex justify-between items-center p-6 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0">
-        <div className="flex items-center gap-8">
-          <span className="text-xl font-extrabold tracking-tighter">DEMO.TDC</span>
-          <div className="hidden md:flex gap-6">
-            <button onClick={() => setView('swap')} className={`text-sm font-semibold transition-colors ${view === 'swap' ? 'text-black underline underline-offset-8' : 'text-gray-400 hover:text-black'}`}>TDC DEX</button>
-            <button onClick={() => setView('ecosystem')} className={`text-sm font-semibold transition-colors ${view === 'ecosystem' ? 'text-black underline underline-offset-8' : 'text-gray-400 hover:text-black'}`}>TDC DEFI</button>
+      {/* Nav Bar */}
+      <nav className="w-full max-w-6xl flex justify-between items-center p-8 z-10 border-b border-gray-50 sticky top-0 bg-white/90 backdrop-blur-sm">
+        <div className="flex items-center gap-12">
+          <span className="text-lg font-black tracking-tighter">DEMO.TDC</span>
+          <div className="flex gap-8">
+            <button onClick={() => setView('swap')} className={`text-xs font-bold tracking-widest transition-colors ${view === 'swap' ? 'text-black underline underline-offset-8' : 'text-gray-300 hover:text-black'}`}>TDC DEX</button>
+            <button onClick={() => setView('ecosystem')} className={`text-sm font-bold tracking-widest transition-colors ${view === 'ecosystem' ? 'text-black underline underline-offset-8' : 'text-gray-300 hover:text-black'}`}>TDC DEFI</button>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {isConnected && (
-            <div className="hidden sm:flex flex-col items-end px-4 border-r border-gray-100">
-              <span className="text-[10px] font-bold text-gray-400 uppercase">Balance</span>
-              <span className="text-sm font-black text-black">{balanceFormatted} DTDC</span>
+            <div className="text-right">
+              <p className="text-[9px] font-bold text-gray-300 uppercase">Balance</p>
+              <p className="text-xs font-black">{balanceFormatted} DTDC</p>
             </div>
           )}
           <ConnectButton chainStatus="none" showBalance={false} />
         </div>
       </nav>
 
-      <main className="w-full max-w-lg mt-12 p-4 z-10">
+      <main className="w-full max-w-lg mt-16 p-4 z-10 space-y-10">
         {!isConnected ? (
-          <div className="text-center space-y-6 py-20">
-            <h1 className="text-4xl font-extrabold tracking-tight italic">SISTEMA_OFFLINE</h1>
-            <p className="text-gray-500">Conecta tu wallet para sincronizar con la red DTDC.</p>
+          <div className="text-center py-32">
+            <h1 className="text-3xl font-light text-gray-300 tracking-tight">Conecta tu wallet para empezar.</h1>
           </div>
         ) : (
-          <div className="space-y-8">
-            
-            {/* Legend de Bienvenida con Wallet */}
-            <div className="text-center space-y-1 animate-in fade-in duration-700">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Acceso Autorizado</p>
-              <h3 className="text-sm font-medium text-black">Bienvenido, <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-[11px]">{address}</span></h3>
+          <>
+            <div className="px-2">
+              <p className="text-xs text-gray-400 font-medium">Bienvenido, <span className="text-black font-mono">{address}</span></p>
             </div>
 
-            {/* VISTA SWAP (DEX) */}
-            {view === 'swap' && (
-              <div className="minimal-card space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                <div className="flex justify-between items-end">
-                  <h2 className="text-2xl font-bold">DEX Swap</h2>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Algorithmic Trading</span>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Pagas</label>
-                    <div className="flex justify-between items-center">
-                      <input type="number" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} className="bg-transparent text-2xl font-bold w-full outline-none" />
-                      <span className="font-extrabold text-gray-400">ETH</span>
+            <div className="space-y-16">
+              {view === 'swap' && (
+                <div className="minimal-card space-y-8 shadow-sm">
+                  <h2 className="text-xl font-black">Intercambio</h2>
+                  <div className="space-y-2">
+                    <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex justify-between items-center">
+                      <input type="number" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} className="bg-transparent text-2xl font-bold outline-none w-full" />
+                      <span className="text-sm font-black text-gray-300">ETH</span>
+                    </div>
+                    <div className="flex justify-center -my-4 relative z-10">
+                      <div className="bg-white border border-gray-100 p-2 rounded-full shadow-sm text-gray-300">↓</div>
+                    </div>
+                    <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex justify-between items-center opacity-60">
+                      <span className="text-2xl font-bold">Cotización...</span>
+                      <span className="text-sm font-black text-gray-300">DTDC</span>
                     </div>
                   </div>
-                  <div className="flex justify-center -my-6 relative z-10">
-                    <div className="bg-white border border-gray-100 p-2 rounded-full shadow-sm text-gray-300 font-bold">↓</div>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Recibes (est.)</label>
-                    <div className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-gray-300 italic">Cotización...</span>
-                      <span className="font-extrabold text-gray-400">DTDC</span>
-                    </div>
-                  </div>
+                  <button onClick={() => writeImperial({ address: DEX_ADDRESS, abi: DEX_ABI, functionName: 'ethToToken', value: parseEther(swapAmount) })} className="pill-button w-full py-5 text-sm uppercase tracking-widest">Ejecutar Swap</button>
                 </div>
+              )}
 
-                <button 
-                  onClick={() => writeImperial({ address: DEX_ADDRESS, abi: DEX_ABI, functionName: 'ethToToken', value: parseEther(swapAmount) })}
-                  className="pill-button w-full text-lg py-4 shadow-xl shadow-black/5"
-                >
-                  EJECUTAR TRANSACCION
-                </button>
-              </div>
-            )}
-
-            {/* VISTA ECOSISTEMA (TDC DEFI) */}
-            {view === 'ecosystem' && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                
-                {/* 1. FAUCET */}
-                <div className="minimal-card bg-black text-white flex justify-between items-center p-6 shadow-2xl shadow-green-500/10 border-green-500/20">
-                  <div>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Faucet</p>
-                    <p className="text-xl font-bold text-green-400">Recibe 10 DTDC</p>
-                  </div>
-                  <button 
-                    onClick={() => writeImperial({ address: FAUCET_ADDRESS, abi: FAUCET_ABI, functionName: 'requestTokens' })}
-                    className="text-[10px] font-bold border border-green-900 text-green-500 rounded-full px-4 py-2 hover:bg-green-950 transition-all shrink-0"
-                  >
-                    + RECLAMAR
-                  </button>
-                </div>
-
-                {/* 2. VENDOR */}
-                <div className="minimal-card space-y-6">
-                  <h3 className="font-bold text-sm uppercase tracking-widest text-gray-400">Tienda (Precio Fijo)</h3>
-                  <div className="space-y-4">
-                    <div className="relative w-full">
-                      <input 
-                        type="number" 
-                        value={buyAmount} 
-                        onChange={(e) => setBuyAmount(e.target.value)} 
-                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold pl-12 focus:border-black transition-colors outline-none text-xl" 
-                      />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black uppercase">ETH</span>
+              {view === 'ecosystem' && (
+                <div className="space-y-16">
+                  
+                  {/* 1. FAUCET */}
+                  <div className="minimal-card bg-black text-white flex justify-between items-center p-8">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Faucet Diaria</p>
+                      <p className="text-3xl font-black text-green-400">10 DTDC</p>
+                      <p className="text-[9px] text-gray-600 mt-1">Tu saldo actual: {balanceFormatted}</p>
                     </div>
-                    
                     <button 
-                      onClick={() => writeImperial({ address: VENDOR_ADDRESS, abi: VENDOR_ABI, functionName: 'buyTokens', value: parseEther(buyAmount) })} 
-                      className="pill-button w-full py-4 text-sm"
+                      onClick={() => writeImperial({ address: FAUCET_ADDRESS, abi: FAUCET_ABI, functionName: 'requestTokens' })}
+                      className="text-[10px] font-bold border border-green-900 text-green-500 rounded-full px-6 py-3 hover:bg-green-950 transition-all uppercase tracking-widest"
                     >
-                      COMPRAR {(Number(buyAmount) * 100000).toLocaleString()} DTDC
+                      Solicitar
                     </button>
                   </div>
+
+                  {/* 2. VENDOR - INPUT IGUAL AL BOTON */}
+                  <div className="minimal-card space-y-6">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-300">Tienda (Precio Fijo)</h3>
+                    <div className="flex flex-col items-center space-y-4 w-full">
+                      <div className="relative w-full">
+                        <input 
+                          type="number" 
+                          value={buyAmount} 
+                          onChange={(e) => setBuyAmount(e.target.value)} 
+                          className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold outline-none focus:border-black transition-colors text-center text-xl" 
+                        />
+                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-300 uppercase">ETH</span>
+                      </div>
+                      
+                      <button 
+                        onClick={() => writeImperial({ address: VENDOR_ADDRESS, abi: VENDOR_ABI, functionName: 'buyTokens', value: parseEther(buyAmount) })} 
+                        className="pill-button w-full py-4 text-xs uppercase tracking-widest"
+                      >
+                        Comprar {(Number(buyAmount) * 100000).toLocaleString()} DTDC
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 3. STAKING - LIMPIEZA DE FONDO mt-24 */}
+                  <div className="minimal-card space-y-8 mt-24 border-t-4 border-t-black !bg-white">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-300">Staking (20% APY)</h3>
+                    <div className="grid grid-cols-2 gap-8">
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-300 uppercase mb-1">Inversión</p>
+                        <p className="text-xl font-black">{Number(stakedAmount).toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-300 uppercase mb-1">Ganancias</p>
+                        <p className="text-xl font-black text-green-500">+{Number(currentReward).toFixed(6)}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <input type="number" value={stakeAmount} onChange={(e) => setStakeAmount(e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-4 font-bold outline-none focus:border-black transition-colors text-center" />
+                      <div className="grid grid-cols-2 gap-4">
+                        <button onClick={() => writeImperial({ address: TOKEN_ADDRESS, abi: TOKEN_ABI, functionName: 'approve', args: [STAKING_ADDRESS, parseEther(stakeAmount)] })} className="text-[10px] font-bold border border-gray-100 rounded-xl py-4 hover:bg-gray-50 uppercase tracking-widest">1. Autorizar</button>
+                        <button onClick={() => writeImperial({ address: STAKING_ADDRESS, abi: STAKING_ABI, functionName: 'stake', args: [parseEther(stakeAmount)] })} className="pill-button text-[10px] uppercase tracking-widest">2. Invertir</button>
+                      </div>
+                      <button onClick={() => writeImperial({ address: STAKING_ADDRESS, abi: STAKING_ABI, functionName: 'withdraw' })} className="w-full text-[10px] font-bold text-gray-300 hover:text-red-500 transition-colors uppercase tracking-widest pt-2">Retirar todo</button>
+                    </div>
+                  </div>
                 </div>
-
-                {/* 3. STAKING */}
-                <div className="minimal-card space-y-6 border-t-4 border-t-black">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-sm uppercase tracking-widest text-gray-400">Banco de Staking</h3>
-                    <span className="text-[10px] bg-black text-white font-bold px-3 py-1 rounded-full">20% APY</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">Inversión</p>
-                      <p className="text-2xl font-black">{Number(stakedAmount).toLocaleString()} DTDC</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">Intereses</p>
-                      <p className="text-2xl font-black text-green-600">+{Number(currentReward).toFixed(6)}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <input type="number" value={stakeAmount} onChange={(e) => setStakeAmount(e.target.value)} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-sm focus:border-black transition-colors outline-none" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => writeImperial({ address: TOKEN_ADDRESS, abi: TOKEN_ABI, functionName: 'approve', args: [STAKING_ADDRESS, parseEther(stakeAmount)] })} className="text-[10px] font-bold border-2 border-gray-100 rounded-xl py-3 hover:bg-gray-50 transition-all">1. AUTORIZAR</button>
-                      <button onClick={() => writeImperial({ address: STAKING_ADDRESS, abi: STAKING_ABI, functionName: 'stake', args: [parseEther(stakeAmount)] })} className="pill-button text-[10px]">2. INVERTIR</button>
-                    </div>
-                    <button onClick={() => writeImperial({ address: STAKING_ADDRESS, abi: STAKING_ABI, functionName: 'withdraw' })} className="w-full text-[10px] font-extrabold text-red-500 hover:text-red-700 mt-2 uppercase tracking-tighter transition-colors">Liquidación Total (Capital + Intereses)</button>
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-          </div>
+              )}
+            </div>
+          </>
         )}
       </main>
 
-      <footer className="w-full max-w-6xl p-10 mt-auto text-center border-t border-gray-50">
-        <p className="text-[10px] font-bold text-gray-300 tracking-[0.2em] uppercase">DAPP DEMO.TDC</p>
+      <footer className="w-full max-w-6xl p-16 mt-auto text-center border-t border-gray-50">
+        <p className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">
+          DAPP DEMO.TDC | ELABORADO POR EL PROFESOR CRIPTO DE TODODECRIPTO.COM
+        </p>
       </footer>
     </div>
   )
